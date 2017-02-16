@@ -90,18 +90,4 @@ public class Solution {
         return charCounts;
     }
 
-    private static Map<Character, Integer> getCharCountsFromInput(Scanner sc) {
-        Map<Character, Integer> charCounts = new HashMap<>();
-
-        while (sc.hasNext()) {
-            char ch = sc.findInLine(".").charAt(0);
-            System.out.println(ch);
-            if (charCounts.containsKey(ch)) {
-                charCounts.put(ch, charCounts.get(ch) + 1);
-            } else {
-                charCounts.put(ch, 1);
-            }
-        }
-        return charCounts;
-    }
 }
