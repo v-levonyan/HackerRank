@@ -1,3 +1,5 @@
+package problems;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -27,7 +29,7 @@ public class MergeSort {
         scanner.close();
     }
 
-    private static void mergeSort(int[] arr) {
+    public static void mergeSort(int[] arr) {
         mergeSort(arr, 0, arr.length - 1);
     }
     private static void mergeSort(int[] arr, int p, int r) {
@@ -41,7 +43,6 @@ public class MergeSort {
 
     }
 
-    //MERGE.A; p; q; r/, where A is an array and p, q, and r are indices into the array such that p <=􏰎 q < r
     private static void merge(int[] arr, int p, int q, int r) {
         int n1 = q - p + 1;
         int n2 = r - q ;
@@ -60,9 +61,6 @@ public class MergeSort {
 
         left[n1] = Integer.MAX_VALUE;
         right[n2] = Integer.MAX_VALUE;
-
-        printArray(left);
-        printArray(right);
 
         int i = 0;
         int j = 0;

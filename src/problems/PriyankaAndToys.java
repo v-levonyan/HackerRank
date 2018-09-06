@@ -1,20 +1,26 @@
+package problems;
+
 import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.text.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
 
-public class FindMedian {
+public class PriyankaAndToys {
 
-    static int findMedian(int[] arr) {
+    // Complete the toys function below.
+    static int toys(int[] w) {
 
-        QuickSortLomuto.quickSort(arr);
+        QuickSortLomuto.quickSort(w);
 
-        int medianIndex = arr.length/2;
+        int containerCount = 1;
 
-        return arr[medianIndex];
+        int minWeightItemIndex = 0;
+        for (int i = 1; i < w.length; i++) {
+            if (w[i] - w[minWeightItemIndex] > 4) {
+                containerCount++;
+                minWeightItemIndex = i;
+            }
+        }
+
+        return containerCount;
 
     }
 
@@ -26,17 +32,17 @@ public class FindMedian {
         int n = scanner.nextInt();
         scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
 
-        int[] arr = new int[n];
+        int[] w = new int[n];
 
-        String[] arrItems = scanner.nextLine().split(" ");
+        String[] wItems = scanner.nextLine().split(" ");
         scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
 
         for (int i = 0; i < n; i++) {
-            int arrItem = Integer.parseInt(arrItems[i]);
-            arr[i] = arrItem;
+            int wItem = Integer.parseInt(wItems[i]);
+            w[i] = wItem;
         }
 
-        int result = findMedian(arr);
+        int result = toys(w);
 
         bufferedWriter.write(String.valueOf(result));
         bufferedWriter.newLine();

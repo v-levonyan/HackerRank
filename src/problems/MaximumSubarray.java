@@ -1,3 +1,5 @@
+package problems;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -6,9 +8,13 @@ import java.util.Scanner;
 public class MaximumSubarray {
 
     static int[] maxSubarray(int[] arr) {
-        int[] result = new int[2];
-        result[0] = maximumSubarray(arr);
-        result[1] = maximumSubSequence(arr);
+        long startTime = System.nanoTime();
+        int [] result = {maximumSubarray(arr)};
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime) / 1000000;
+
+        System.out.println("Execution time: " + duration);
         return result;
     }
 
