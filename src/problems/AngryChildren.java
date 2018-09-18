@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 public class AngryChildren {
 
+
     // Complete the angryChildren function below.
     static long angryChildren(int k, int[] packets) {
 
@@ -24,14 +25,14 @@ public class AngryChildren {
         return minSum;
     }
 
-    static long angryChildren2(int k, int[] packets) {
+    static long angryChildren1(int k, int[] packets) {
 
 
         Arrays.sort(packets);
-        long sum = 0;
-        long minSum = unfairnessSum(k, packets,0);
+        long sum = unfairnessSum(k, packets,0);
+        long minSum = sum;
         for (int i = 1; i <= packets.length - k; i++) {
-            sum = computeSum(packets, minSum, i, i + k - 1);
+            sum = computeSum(packets, sum, i, i + k - 1);
             if (minSum > sum) {
                 minSum = sum;
             }
@@ -39,18 +40,20 @@ public class AngryChildren {
         return minSum;
     }
 
-    private static long computeSum(int[] packets, long minSum, int low, int high) {
+    private static long computeSum(int[] packets, long sum, int low, int high) {
         long head = 0;
         for (int j = high - 1; j >= low; j--) {
             head +=  packets[high] - packets[j];
         }
         long tail = 0;
-        for (int i = high - 1; i >= low + 1 ; i--) {
+        for (int i = high - 1; i >= low; i--) {
             tail += packets[i] - packets[low - 1];
         }
-        long result = minSum - tail + head;
+        long result = sum - tail + head;
         return result;
     }
+
+
 
     private static long unfairnessSum(int k , int[] packets, int low) {
         long sum = 0;
@@ -67,6 +70,46 @@ public class AngryChildren {
         return sum;
     }
 
+    static long angryChildren2(int k, int[] packets) {
+
+
+        Arrays.sort(packets);
+        long sum = unfairnessSum(k, packets,0);
+        long minSum = sum;
+        Long subSum = Long.valueOf(-1);
+        for (int i = 1; i <= packets.length - k; i++) {
+            sum = computeSum2(packets, sum, subSum, i, i + k - 1);
+            if (minSum > sum) {
+                minSum = sum;
+            }
+        }
+        return minSum;
+    }
+
+
+    private static long computeSum2(int[] packets, long sum, Long subSum, int low, int high) {
+        int k = high - low + 1;
+
+        if (subSum.longValue() < 0) {
+            for (int j = high - 1; j >= low; j--) {
+//                subSum += packets[j];
+                subSum = subSum.longValue() + packets[j];
+            }
+        } else {
+            subSum = subSum - packets[low - 1] + packets[high - 1];
+        }
+
+        long head = k * packets[high] - subSum;
+
+        long tail = subSum - k * packets[low - 1];
+
+
+
+        long result = sum - tail + head;
+        return result;
+    }
+
+
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
@@ -79,6 +122,7 @@ public class AngryChildren {
         scanner.skip("(\r\n|[\n\r\u2028\u2029\u0085])?");
 
         int[] packets = new int[n];
+
 
         for (int i = 0; i < n; i++) {
             int packetsItem = scanner.nextInt();
@@ -94,5 +138,14 @@ public class AngryChildren {
         bufferedWriter.close();
 
         scanner.close();
+    }
+
+
+    private static int sum(int[] packets, int low, int high) {
+        int sum = 0;
+        for (int j = low; j <= high ; j++) {
+            sum += packets[j];
+        }
+        return sum;
     }
 }
