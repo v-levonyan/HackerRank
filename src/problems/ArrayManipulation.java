@@ -30,7 +30,7 @@ public class ArrayManipulation {
         return maxValue;
     }
 
-    static class Range implements Comparable<Range>{
+    static class Range implements Comparable<Range> {
         int low;
         int high;
 
@@ -56,6 +56,7 @@ public class ArrayManipulation {
             return low == c.low && high == c.high;
         }
     }
+
     static long arrayManipulation1(int n, int[][] queries) {
 
         TreeMap<Range, Long> rangeValues = new TreeMap<>();
@@ -68,18 +69,21 @@ public class ArrayManipulation {
 
         TreeMap<Range, Long> splittedRanges = new TreeMap<>();
         Map.Entry<Range, Long> previous = null;
-        Iterator<Map.Entry<Range,Long>> it = rangeValues.entrySet().iterator();
-        while( it.hasNext() ) {
+        Iterator<Map.Entry<Range, Long>> it = rangeValues.entrySet().iterator();
+        while (it.hasNext()) {
             Map.Entry<Range, Long> entry = it.next();
             if (previous != null) {
-                if (rangeValues.firstEntry().equals(previous)) {
+                if (previous.equals(rangeValues.firstEntry())) {
                     TreeMap<Range, Long> splittedRange = splitRanges(previous, entry);
                     splittedRanges.putAll(splittedRange);
+                } else {
                     previous = splittedRanges.lowerEntry(entry.getKey());
+                    TreeMap<Range, Long> splittedRange = splitRanges(previous, entry);
+                    splittedRanges.putAll(splittedRange);
                 }
-            } else {
-                previous = entry;
             }
+
+            previous = entry;
         }
         rangeValues.putAll(splittedRanges);
 
