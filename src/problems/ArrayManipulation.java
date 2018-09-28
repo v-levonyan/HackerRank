@@ -1,12 +1,7 @@
 package problems;
 
 import java.io.*;
-import java.math.*;
-import java.security.*;
-import java.text.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.regex.*;
 
 public class ArrayManipulation {
 
@@ -35,8 +30,14 @@ public class ArrayManipulation {
         int high;
 
         public Range(int low, int high) {
+            if (high < low) high = low;
             this.low = low;
             this.high = high;
+        }
+
+        public Range(int i) {
+            this.low = i;
+            this.high = i;
         }
 
         @Override
@@ -73,22 +74,76 @@ public class ArrayManipulation {
         while (it.hasNext()) {
             Map.Entry<Range, Long> entry = it.next();
             if (previous != null) {
-                if (previous.equals(rangeValues.firstEntry())) {
-                    TreeMap<Range, Long> splittedRange = splitRanges(previous, entry);
-                    splittedRanges.putAll(splittedRange);
-                } else {
+                if (!previous.equals(rangeValues.firstEntry())) {
                     previous = splittedRanges.lowerEntry(entry.getKey());
-                    TreeMap<Range, Long> splittedRange = splitRanges(previous, entry);
-                    splittedRanges.putAll(splittedRange);
                 }
+                splitRanges(previous, entry, splittedRanges);
             }
 
             previous = entry;
         }
-        rangeValues.putAll(splittedRanges);
+//        rangeValues.putAll(splittedRanges);
 
 
-        return rangeValues.values().stream().max(Long::compare).get();
+        return splittedRanges.values().stream().max(Long::compare).get();
+    }
+
+
+    private static void splitRanges(
+            Map.Entry<Range, Long> preventry,
+            Map.Entry<Range, Long> currententry, TreeMap<Range, Long> rangeValues) {
+
+        Range prevRange = preventry.getKey();
+        Long prevVal = preventry.getValue();
+        Range currentRange = currententry.getKey();
+        Long currentVal = currententry.getValue();
+
+        if (currentRange.low <= prevRange.high) {
+            if (currentRange.high >= prevRange.high) {
+                rangeValues.remove(prevRange);
+                rangeValues.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                rangeValues.put(new Range(currentRange.low, prevRange.high), prevVal + currentVal);
+//                rangeValues.put(new Range(prevRange.high + 1, currentRange.high), currentVal);
+
+                //TODO: sum to next ranges!!!
+                Range tailRange = new Range(prevRange.high + 1, currentRange.high);
+                Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
+                breakRange(tailRange, entries, rangeValues, currentVal);
+
+            } else if (currentRange.high < prevRange.high) {
+                rangeValues.remove(prevRange);
+                rangeValues.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                rangeValues.put(new Range(currentRange.low, currentRange.high), prevVal + currentVal);
+                rangeValues.put(new Range(currentRange.high + 1, prevRange.high), prevVal);
+            }
+        } else {
+            rangeValues.put(new Range(currentRange.low, currentRange.high), currentVal);
+            Range tailRange = new Range(prevRange.high + 1, currentRange.high);
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
+            breakRange(tailRange, entries, rangeValues, currentVal);
+        }
+
+
+    }
+
+    private static void breakRange(
+            Range tailRange,
+            Iterator<Map.Entry<Range, Long>> entries,
+            TreeMap<Range, Long> result, Long currentVal) {
+
+        int index = tailRange.low;
+        while (entries.hasNext()) {
+            Map.Entry<Range, Long> entry = entries.next();
+            Range range = entry.getKey();
+
+            if (index < range.low - 1) {
+                result.put(new Range(index, range.low - 1), currentVal);
+            }
+            result.put(new Range(range.low, range.high), currentVal + entry.getValue());
+            index = range.high + 1;
+        }
+
+        result.put(new Range(index, tailRange.high), currentVal);
     }
 
     private static TreeMap<Range, Long> splitRanges(
@@ -152,13 +207,49 @@ public class ArrayManipulation {
             }
         }
 
-        long result = arrayManipulation1(n, queries);
+        long result1 = arrayManipulation1(n, queries);
+        long result = arrayManipulation(n, queries);
 
         bufferedWriter.write(String.valueOf(result));
+        bufferedWriter.newLine();
+        bufferedWriter.append(String.valueOf(result1));
         bufferedWriter.newLine();
 
         bufferedWriter.close();
 
         scanner.close();
+    }
+
+
+    private static TreeMap<Range, Long> splitRangesRecursive(
+            Map.Entry<Range, Long> preventry,
+            Map.Entry<Range, Long> currententry, TreeMap<Range, Long> rangeValues) {
+
+        TreeMap<Range, Long> result = new TreeMap<>();
+
+        Range prevRange = preventry.getKey();
+        Long prevVal = preventry.getValue();
+        Range currentRange = currententry.getKey();
+        Long currentVal = currententry.getValue();
+
+        if (currentRange.low <= prevRange.high) {
+            if (currentRange.high >= prevRange.high) {
+                result.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                result.put(new Range(currentRange.low, prevRange.high), prevVal + currentVal);
+                result.put(new Range(prevRange.high + 1, currentRange.high), currentVal);
+
+//                splitRangesRecursive()
+
+            } else if (currentRange.high < prevRange.high) {
+                result.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                result.put(new Range(currentRange.low, currentRange.high), prevVal + currentVal);
+                result.put(new Range(currentRange.high + 1, prevRange.high), prevVal);
+            }
+        } else {
+            result.put(new Range(currentRange.low, currentRange.high), currentVal);
+        }
+
+
+        return result;
     }
 }
