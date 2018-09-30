@@ -25,6 +25,15 @@ public class ArrayManipulation {
         return maxValue;
     }
 
+    static void test() {
+        TreeMap<Range, Long> rangeValues = new TreeMap<>();
+
+        rangeValues.put(new Range(6, 10), 10L);
+        rangeValues.put(new Range(6, 20), 15L);
+
+        System.out.println(rangeValues.toString());
+    }
+
     static class Range implements Comparable<Range> {
         int low;
         int high;
@@ -42,6 +51,9 @@ public class ArrayManipulation {
 
         @Override
         public int compareTo(Range range) {
+            if (this.low == range.low) {
+                return this.high - range.high;
+            }
             return this.low - range.low;
         }
 
@@ -98,15 +110,18 @@ public class ArrayManipulation {
         Range currentRange = currententry.getKey();
         Long currentVal = currententry.getValue();
 
-        if (currentRange.low <= prevRange.high) {
+        if (currentRange.low < prevRange.high) {
             if (currentRange.high >= prevRange.high) {
                 rangeValues.remove(prevRange);
-                rangeValues.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                if (currentRange.low != prevRange.low) {
+                    rangeValues.put(new Range(prevRange.low, currentRange.low - 1), prevVal);
+                }
                 rangeValues.put(new Range(currentRange.low, prevRange.high), prevVal + currentVal);
+
 //                rangeValues.put(new Range(prevRange.high + 1, currentRange.high), currentVal);
 
                 //TODO: sum to next ranges!!!
-                Range tailRange = new Range(prevRange.high + 1, currentRange.high);
+                Range tailRange = new Range(prevRange.high, currentRange.high);
                 Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
                 breakRange(tailRange, entries, rangeValues, currentVal);
 
@@ -116,9 +131,16 @@ public class ArrayManipulation {
                 rangeValues.put(new Range(currentRange.low, currentRange.high), prevVal + currentVal);
                 rangeValues.put(new Range(currentRange.high + 1, prevRange.high), prevVal);
             }
-        } else {
-            rangeValues.put(new Range(currentRange.low, currentRange.high), currentVal);
-            Range tailRange = new Range(prevRange.high + 1, currentRange.high);
+        } else if (currentRange.low == prevRange.high) {
+            rangeValues.remove(prevRange);
+            rangeValues.put(new Range(currentRange.low), prevVal + currentVal);
+//            rangeValues.put(new Range(currentRange.low + 1, currentRange.high), currentVal);
+            Range tailRange = new Range(currentRange.low, currentRange.high);
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
+            breakRange(tailRange, entries, rangeValues, currentVal);
+        } else if (currentRange.low > prevRange.high) {
+            rangeValues.put(prevRange, prevVal);
+            Range tailRange = new Range(currentRange.low, currentRange.high);
             Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
             breakRange(tailRange, entries, rangeValues, currentVal);
         }
@@ -137,10 +159,18 @@ public class ArrayManipulation {
             Range range = entry.getKey();
 
             if (index < range.low - 1) {
-                result.put(new Range(index, range.low - 1), currentVal);
+                Range key = new Range(index, range.low - 1);
+                result.put(key, result.getOrDefault(key, 0l) + currentVal);
             }
-            result.put(new Range(range.low, range.high), currentVal + entry.getValue());
-            index = range.high + 1;
+            if (range.high > tailRange.high) {
+                result.remove(range);
+                result.put(new Range(range.low, tailRange.high), currentVal + entry.getValue());
+                result.put(new Range(tailRange.high + 1, range.high), currentVal);
+                return;
+            } else {
+                result.replace(new Range(range.low, range.high), currentVal + entry.getValue());
+                index = range.high + 1;
+            }
         }
 
         result.put(new Range(index, tailRange.high), currentVal);
