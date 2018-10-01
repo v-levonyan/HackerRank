@@ -121,9 +121,9 @@ public class ArrayManipulation {
 //                rangeValues.put(new Range(prevRange.high + 1, currentRange.high), currentVal);
 
                 //TODO: sum to next ranges!!!
-                Range tailRange = new Range(prevRange.high, currentRange.high);
-                Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
-                breakRange(tailRange, entries, rangeValues, currentVal);
+                Range fromRange = new Range(prevRange.high, currentRange.high);
+                Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(fromRange, new Range(currentRange.high)).entrySet().iterator();
+                breakRange(fromRange, entries, rangeValues, currentVal);
 
             } else if (currentRange.high < prevRange.high) {
                 rangeValues.remove(prevRange);
@@ -136,12 +136,12 @@ public class ArrayManipulation {
             rangeValues.put(new Range(currentRange.low), prevVal + currentVal);
 //            rangeValues.put(new Range(currentRange.low + 1, currentRange.high), currentVal);
             Range tailRange = new Range(currentRange.low, currentRange.high);
-            Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high)).entrySet().iterator();
             breakRange(tailRange, entries, rangeValues, currentVal);
         } else if (currentRange.low > prevRange.high) {
             rangeValues.put(prevRange, prevVal);
             Range tailRange = new Range(currentRange.low, currentRange.high);
-            Iterator<Map.Entry<Range, Long>> entries = rangeValues.tailMap(tailRange).entrySet().iterator();
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high)).entrySet().iterator();
             breakRange(tailRange, entries, rangeValues, currentVal);
         }
 
