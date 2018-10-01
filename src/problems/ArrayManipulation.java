@@ -165,7 +165,7 @@ public class ArrayManipulation {
             if (range.high > tailRange.high) {
                 result.remove(range);
                 result.put(new Range(range.low, tailRange.high), currentVal + entry.getValue());
-                result.put(new Range(tailRange.high + 1, range.high), currentVal);
+                result.put(new Range(tailRange.high + 1, range.high), entry.getValue());
                 return;
             } else {
                 result.replace(new Range(range.low, range.high), currentVal + entry.getValue());
