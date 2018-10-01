@@ -122,7 +122,7 @@ public class ArrayManipulation {
 
                 //TODO: sum to next ranges!!!
                 Range fromRange = new Range(prevRange.high, currentRange.high);
-                Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(fromRange, new Range(currentRange.high)).entrySet().iterator();
+                Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(fromRange, new Range(currentRange.high + 1)).entrySet().iterator();
                 breakRange(fromRange, entries, rangeValues, currentVal);
 
             } else if (currentRange.high < prevRange.high) {
@@ -136,12 +136,12 @@ public class ArrayManipulation {
             rangeValues.put(new Range(currentRange.low), prevVal + currentVal);
 //            rangeValues.put(new Range(currentRange.low + 1, currentRange.high), currentVal);
             Range tailRange = new Range(currentRange.low, currentRange.high);
-            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high)).entrySet().iterator();
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high + 1)).entrySet().iterator();
             breakRange(tailRange, entries, rangeValues, currentVal);
         } else if (currentRange.low > prevRange.high) {
             rangeValues.put(prevRange, prevVal);
             Range tailRange = new Range(currentRange.low, currentRange.high);
-            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high)).entrySet().iterator();
+            Iterator<Map.Entry<Range, Long>> entries = rangeValues.subMap(tailRange, new Range(currentRange.high + 1)).entrySet().iterator();
             breakRange(tailRange, entries, rangeValues, currentVal);
         }
 
@@ -153,10 +153,11 @@ public class ArrayManipulation {
             Iterator<Map.Entry<Range, Long>> entries,
             TreeMap<Range, Long> result, Long currentVal) {
 
-        int index = tailRange.low;
+        int index = tailRange.low + 1;
         while (entries.hasNext()) {
             Map.Entry<Range, Long> entry = entries.next();
             Range range = entry.getKey();
+            Long value = entry.getValue();
 
             if (index < range.low - 1) {
                 Range key = new Range(index, range.low - 1);
@@ -164,11 +165,11 @@ public class ArrayManipulation {
             }
             if (range.high > tailRange.high) {
                 result.remove(range);
-                result.put(new Range(range.low, tailRange.high), currentVal + entry.getValue());
-                result.put(new Range(tailRange.high + 1, range.high), entry.getValue());
+                result.put(new Range(range.low, tailRange.high), currentVal + value);
+                result.put(new Range(tailRange.high + 1, range.high), value);
                 return;
             } else {
-                result.replace(new Range(range.low, range.high), currentVal + entry.getValue());
+                result.replace(new Range(range.low, range.high), currentVal + value);
                 index = range.high + 1;
             }
         }
